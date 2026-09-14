@@ -1,6 +1,9 @@
+import { useState } from "react";
 import "./App.css";
 
 function App() {
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+
   return (
     <div className="app">
       <header className="header">
@@ -23,7 +26,9 @@ function App() {
       <main>
         <section className="hero" id="inicio">
           <div className="hero-content">
-            <span className="tag">✨ Encontre profissionais perto de você</span>
+            <span className="tag">
+              ✨ Encontre profissionais perto de você
+            </span>
 
             <h1>
               Precisou de um serviço?
@@ -62,18 +67,85 @@ function App() {
                 🔎 Procurar um serviço
               </button>
 
-              <button className="secondary-action">
+              <button
+                className="secondary-action"
+                onClick={() => setMostrarFormulario(true)}
+              >
                 🧑‍🔧 Oferecer meu serviço
               </button>
             </div>
           </div>
         </section>
 
+        {mostrarFormulario && (
+          <section className="professional-form">
+            <div className="form-container">
+              <button
+                className="close-form"
+                onClick={() => setMostrarFormulario(false)}
+              >
+                ✕
+              </button>
+
+              <span>CADASTRO PROFISSIONAL</span>
+
+              <h2>Ofereça seu serviço</h2>
+
+              <p>
+                Cadastre seus dados para começar a receber novos clientes.
+              </p>
+
+              <form
+  onSubmit={(e) => {
+    e.preventDefault();
+    alert("✅ Serviço cadastrado com sucesso!");
+  }}
+>
+                <input
+                  type="text"
+                  placeholder="Seu nome"
+                />
+
+                <input
+                  type="tel"
+                  placeholder="WhatsApp"
+                />
+
+                <input
+                  type="text"
+                  placeholder="Qual serviço você oferece?"
+                />
+
+                <input
+                  type="text"
+                  placeholder="Cidade ou região"
+                />
+
+                <input
+                  type="number"
+                  placeholder="Preço inicial (R$)"
+                />
+
+                <textarea
+                  placeholder="Conte um pouco sobre seu serviço..."
+                  rows="4"
+                ></textarea>
+
+                <button type="submit" className="form-button">
+                  Cadastrar meu serviço
+                </button>
+              </form>
+            </div>
+          </section>
+        )}
+
         <section className="categories" id="categorias">
           <div className="section-title">
             <span>EXPLORE</span>
             <h2>O que você está procurando?</h2>
-            <p>Encontre profissionais para diferentes tipos de serviços.</p>
+            <p>
+              Encontre profissionais para diferentes tipos de serviços.
+            </p>
           </div>
 
           <div className="category-grid">
@@ -156,7 +228,8 @@ function App() {
               <div className="step-number">3</div>
               <h3>Contrate</h3>
               <p>
-                Entre em contato, combine os detalhes e contrate o profissional.
+                Entre em contato, combine os detalhes e contrate o
+                profissional.
               </p>
             </div>
           </div>
@@ -165,20 +238,30 @@ function App() {
         <section className="professional-banner">
           <div>
             <span>É PROFISSIONAL?</span>
-            <h2>Transforme seu trabalho em novas oportunidades.</h2>
+
+            <h2>
+              Transforme seu trabalho em novas oportunidades.
+            </h2>
+
             <p>
-              Crie seu perfil gratuitamente e seja encontrado por pessoas que
-              precisam dos seus serviços.
+              Crie seu perfil gratuitamente e seja encontrado por pessoas
+              que precisam dos seus serviços.
             </p>
           </div>
 
-          <button>Começar agora →</button>
+          <button onClick={() => setMostrarFormulario(true)}>
+            Começar agora →
+          </button>
         </section>
       </main>
 
       <footer>
         <div className="footer-logo">🔎 Achei Serviço</div>
-        <p>Quem precisa, acha. Quem trabalha, é encontrado.</p>
+
+        <p>
+          Quem precisa, acha. Quem trabalha, é encontrado.
+        </p>
+
         <small>© 2026 Achei Serviço</small>
       </footer>
     </div>

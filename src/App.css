@@ -15,7 +15,8 @@ body {
 }
 
 button,
-input {
+input,
+textarea {
   font-family: inherit;
 }
 
@@ -27,6 +28,8 @@ button {
 .app {
   min-height: 100vh;
 }
+
+/* HEADER */
 
 .header {
   height: 76px;
@@ -81,6 +84,8 @@ nav a:hover {
   border-radius: 9px;
 }
 
+/* HERO */
+
 .hero {
   min-height: 590px;
   display: flex;
@@ -126,6 +131,8 @@ nav a:hover {
   font-size: 18px;
   line-height: 1.6;
 }
+
+/* BUSCA */
 
 .search-box {
   background: white;
@@ -192,6 +199,8 @@ nav a:hover {
   border: 1px solid #dce2ea;
 }
 
+/* CATEGORIAS */
+
 .categories,
 .how-it-works {
   padding: 90px 7%;
@@ -204,7 +213,8 @@ nav a:hover {
 }
 
 .section-title span,
-.professional-banner span {
+.professional-banner span,
+.form-container > span {
   color: #635bff;
   font-size: 12px;
   font-weight: 800;
@@ -258,6 +268,8 @@ nav a:hover {
   line-height: 1.5;
 }
 
+/* COMO FUNCIONA */
+
 .how-it-works {
   background: #f7f8fb;
 }
@@ -294,6 +306,8 @@ nav a:hover {
   line-height: 1.6;
 }
 
+/* BANNER PROFISSIONAL */
+
 .professional-banner {
   margin: 70px auto;
   max-width: 1100px;
@@ -328,6 +342,104 @@ nav a:hover {
   font-weight: 700;
 }
 
+/* FORMULARIO PROFISSIONAL */
+
+.professional-form {
+  background: rgba(17, 24, 39, 0.55);
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.form-container {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.25);
+}
+
+.form-container h2 {
+  font-size: 32px;
+  margin: 10px 0;
+  color: #172033;
+}
+
+.form-container > p {
+  color: #737d8d;
+  margin-bottom: 25px;
+  line-height: 1.5;
+}
+
+.close-form {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #f1f3f7;
+  color: #172033;
+  font-size: 18px;
+}
+
+.close-form:hover {
+  background: #e5e7eb;
+}
+
+.form-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.form-container input,
+.form-container textarea {
+  width: 100%;
+  border: 1px solid #dfe4eb;
+  border-radius: 10px;
+  padding: 14px 15px;
+  font-size: 15px;
+  outline: none;
+  background: #fafbfc;
+  color: #172033;
+}
+
+.form-container input:focus,
+.form-container textarea:focus {
+  border-color: #635bff;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.1);
+}
+
+.form-container textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-button {
+  margin-top: 5px;
+  padding: 15px;
+  border-radius: 10px;
+  background: #635bff;
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.form-button:hover {
+  background: #554ccf;
+}
+
+/* FOOTER */
+
 footer {
   background: #111827;
   color: white;
@@ -349,6 +461,8 @@ footer p {
 footer small {
   color: #687386;
 }
+
+/* CELULAR */
 
 @media (max-width: 800px) {
   nav {
@@ -407,6 +521,16 @@ footer small {
 
   .professional-banner h2 {
     font-size: 28px;
+  }
+}
+
+@media (max-width: 600px) {
+  .form-container {
+    padding: 30px 20px;
+  }
+
+  .form-container h2 {
+    font-size: 27px;
   }
 }
 
