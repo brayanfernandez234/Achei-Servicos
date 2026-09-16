@@ -2,6 +2,16 @@ import {useEffect,useState } from "react";
 import "./App.css";
 import { supabase } from "./lib/supabaseClient";
 function App() {
+  const [usuario, setUsuario] = useState(null);
+const [mostrarLogin, setMostrarLogin] = useState(false);
+useEffect(() => {
+  async function verificarUsuario() {
+    const { data } = await supabase.auth.getSession();
+    setUsuario(data.session?.user ?? null);
+  }
+
+  verificarUsuario();
+}, []);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
 const [profissionais, setProfissionais] = useState([]);
 const [avaliacoes, setAvaliacoes] = useState([]);
@@ -55,7 +65,15 @@ const [resultadosBusca, setResultadosBusca] = useState(null);
         </nav>
 
         <div className="header-buttons">
-          <button className="login">Entrar</button>
+         <button
+  className="login"
+  onClick={() => {
+    alert("ENTRAR FOI CLICADO");
+    setMostrarLogin(true);
+  }}
+>
+  Entrar
+</button>
           <button className="register">Criar conta</button>
         </div>
       </header>
@@ -114,20 +132,102 @@ const [resultadosBusca, setResultadosBusca] = useState(null);
             </div>
 
             <div className="hero-actions">
-              <button className="primary-action">
+           <button
+  className="primary-action"
+  onClick={() => {
+    document
+      .querySelector(".search-box")
+      .scrollIntoView({ behavior: "smooth" });
+  }}
+>
                 🔎 Procurar um serviço
               </button>
 
-              <button
-                className="secondary-action"
-                onClick={() => setMostrarFormulario(true)}
-              >
-                🧑‍🔧 Oferecer meu serviço
-              </button>
+<button
+  className="secondary-action"
+  onClick={() =>setMostrarFormulario(true)}
+>
+  👨‍💼 Oferecer meu serviço
+</button>
             </div>
           </div>
         </section>
+{mostrarLogin && (
+  <section className="professional-details">
+    <h2>Entrar no Achei Serviço</h2>
 
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(e.currentTarget);
+        const email = formData.get("email");
+        const senha = formData.get("senha");
+
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password: senha,
+        });
+
+        if (error) {
+          alert("❌ Erro ao entrar: " + error.message);
+          return;
+        }
+
+        setUsuario(data.user);
+        setMostrarLogin(false);
+        alert("✅ Login realizado com sucesso!");
+      }}
+    >
+      <input
+        type="email"
+        name="email"
+        placeholder="Seu e-mail"
+        required
+      />
+
+      <input
+        type="password"
+        name="senha"
+        placeholder="Sua senha"
+        required
+      />
+
+      <button type="submit">
+        Entrar
+      </button>
+    </form>
+
+    <button
+      onClick={async () => {
+        const email = prompt("Digite seu e-mail:");
+        const senha = prompt("Crie uma senha:");
+
+        if (!email || !senha) return;
+
+        const { error } = await supabase.auth.signUp({
+          email,
+          password: senha,
+        });
+
+        if (error) {
+          alert("❌ Erro ao criar conta: " + error.message);
+          return;
+        }
+
+        alert(
+          "✅ Conta criada! Verifique seu e-mail para confirmar o cadastro."
+        );
+      }}
+    >
+      Criar minha conta
+    </button>
+
+    <button onClick={() => setMostrarLogin(false)}>
+      Fechar
+    </button>
+  </section>
+)}
         {mostrarFormulario && (
           <section className="professional-form">
             <div className="form-container">
