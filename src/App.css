@@ -547,3 +547,42 @@ footer small {
     padding: 9px 12px;
   }
 }
+.professional-details {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 30px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.professional-details h2 {
+  font-size: 30px;
+  margin-bottom: 20px;
+}
+
+.professional-details p {
+  margin: 10px 0;
+  font-size: 16px;
+}
+
+.professional-details a {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 14px 24px;
+  background: #25d366;
+  color: white;
+  text-decoration: none;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+.professional-details button {
+  display: block;
+  margin: 15px auto 0;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}

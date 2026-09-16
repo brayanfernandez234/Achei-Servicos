@@ -1,9 +1,46 @@
-import { useState } from "react";
+import {useEffect,useState } from "react";
 import "./App.css";
-
+import { supabase } from "./lib/supabaseClient";
 function App() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
+const [profissionais, setProfissionais] = useState([]);
+const [avaliacoes, setAvaliacoes] = useState([]);
+useEffect(() => {
+  async function carregarAvaliacoes() {
+    const { data, error } = await supabase
+      .from("avaliacoes")
+      .select("*");
 
+    if (error) {
+      console.error("Erro ao carregar avaliações:", error);
+      return;
+    }
+
+    setAvaliacoes(data);
+  }
+
+  carregarAvaliacoes();
+}, []);
+const [notaSelecionada, setNotaSelecionada] = useState("5");
+const [profissionalSelecionado, setProfissionalSelecionado] = useState(null);
+const [busca, setBusca] = useState("");
+const [resultadosBusca, setResultadosBusca] = useState(null);
+  useEffect(() => {
+    async function carregarProfissionais() {
+      const { data, error } = await supabase
+        .from("profissionais")
+        .select("*");
+
+      if (error) {
+        console.error("Erro ao carregar profissionais:", error);
+        return;
+      }
+
+      setProfissionais(data);
+    }
+
+    carregarProfissionais();
+  }, []);
   return (
     <div className="app">
       <header className="header">
@@ -44,9 +81,11 @@ function App() {
               <div className="search-field">
                 <span>🔍</span>
                 <input
-                  type="text"
-                  placeholder="Qual serviço você procura?"
-                />
+  type="text"
+  placeholder="Qual serviço você procura?"
+  value={busca}
+  onChange={(e) => setBusca(e.target.value)}
+/>
               </div>
 
               <div className="location-field">
@@ -57,9 +96,21 @@ function App() {
                 />
               </div>
 
-              <button className="search-button">
-                Encontrar serviço
-              </button>
+             <button
+  className="search-button"
+  onClick={() => {
+    const resultados = profissionais.filter((profissional) =>
+      profissional.servico
+        .toLowerCase()
+        .includes(busca.toLowerCase())
+    );
+
+    setResultadosBusca(resultados);
+   
+  }}
+>
+  Encontrar serviço
+</button>
             </div>
 
             <div className="hero-actions">
@@ -96,37 +147,63 @@ function App() {
               </p>
 
               <form
-  onSubmit={(e) => {
+  onSubmit={async (e) => {
     e.preventDefault();
+
+    const formData = new FormData(e.currentTarget);
+
+    const { error } = await supabase
+      .from("profissionais")
+      .insert({
+        nome: formData.get("nome"),
+        whatsapp: formData.get("whatsapp"),
+        servico: formData.get("servico"),
+        cidade: formData.get("cidade"),
+        preco: formData.get("preco"),
+        descricao: formData.get("descricao"),
+      });
+
+    if (error) {
+      alert("❌ Erro ao cadastrar: " + error.message);
+      return;
+    }
+
     alert("✅ Serviço cadastrado com sucesso!");
+    e.currentTarget.reset();
   }}
 >
                 <input
                   type="text"
+                  name="nome"
                   placeholder="Seu nome"
                 />
 
                 <input
                   type="tel"
+                   name="whatsapp"
                   placeholder="WhatsApp"
                 />
 
                 <input
                   type="text"
+                   name="servico"
                   placeholder="Qual serviço você oferece?"
                 />
 
                 <input
                   type="text"
+                  name="cidade"
                   placeholder="Cidade ou região"
                 />
 
                 <input
                   type="number"
+                  name="preco"
                   placeholder="Preço inicial (R$)"
                 />
 
                 <textarea
+                 name="descricao"
                   placeholder="Conte um pouco sobre seu serviço..."
                   rows="4"
                 ></textarea>
@@ -139,6 +216,133 @@ function App() {
           </section>
         )}
 
+       <section className="professionals-list">
+  <div className="section-title">
+    <span>PROFISSIONAIS</span>
+    <h2>Profissionais cadastrados</h2>
+    <p>Encontre quem pode ajudar você.</p>
+  </div>
+
+  <div className="category-grid">
+  {(resultadosBusca !== null ? resultadosBusca : profissionais).map((profissional) => (
+      <div
+  className="category-card"
+  key={profissional.id}
+ onClick={() => setProfissionalSelecionado(profissional)}
+  style={{ cursor: "pointer" }}
+>
+        <div className="category-icon">🧑‍🔧</div>
+        <h3>{profissional.servico}</h3>
+        <p><strong>{profissional.nome}</strong></p>
+        <p>📍 {profissional.cidade}</p>
+       
+        <p>💰 A partir de R$ {profissional.preco}</p>
+        <p>{profissional.descricao}</p>
+        <p>📱 {profissional.whatsapp}</p>
+      </div>
+    ))}
+  </div>
+</section> 
+{profissionalSelecionado && (
+  <section className="professional-details">
+    <h2>{profissionalSelecionado.nome}</h2>
+   <div className="avaliacao">
+  <label>Deixe sua avaliação:</label>
+
+  <select
+  value={notaSelecionada}
+  onChange={(e) => setNotaSelecionada(e.target.value)}
+>
+    <option value="5">⭐⭐⭐⭐⭐ Excelente</option>
+    <option value="4">⭐⭐⭐⭐ Muito bom</option>
+    <option value="3">⭐⭐⭐ Bom</option>
+    <option value="2">⭐⭐ Regular</option>
+    <option value="1">⭐ Ruim</option>
+  </select><textarea
+  name="comentario"
+  placeholder="Escreva um comentário..."
+  rows="3"
+/>
+
+<button
+  onClick={async () => {
+    const { error } = await supabase
+      .from("avaliacoes")
+       .insert({
+  profissional_id: profissionalSelecionado.id,
+  nota: Number(notaSelecionada),
+  comentario: document.querySelector(
+    'textarea[name="comentario"]'
+  ).value,
+})
+
+    if (error) {
+      alert("❌ Erro ao enviar avaliação: " + error.message);
+      return;
+    }
+
+    alert("✅ Avaliação enviada com sucesso!");
+    setNotaSelecionada("5");
+  }}
+>
+  Enviar avaliação
+</button>
+</div>
+    <p>🔧 {profissionalSelecionado.servico}</p>
+    <p>📍 {profissionalSelecionado.cidade}</p>
+    <p>💰 A partir de R$ {profissionalSelecionado.preco}</p>
+    <p>
+  ⭐ {(
+    avaliacoes
+      .filter((a) => a.profissional_id === profissionalSelecionado.id)
+      .reduce((soma, a) => soma + a.nota, 0) /
+    avaliacoes.filter(
+      (a) => a.profissional_id === profissionalSelecionado.id
+    ).length || 0
+  ).toFixed(1)}
+
+  {" "}
+  ({avaliacoes.filter(
+    (a) => a.profissional_id === profissionalSelecionado.id
+  ).length} avaliações)
+</p>
+    <p>{profissionalSelecionado.descricao}</p>
+    {avaliacoes
+  .filter(
+    (a) => a.profissional_id === profissionalSelecionado.id
+  )
+  .map((a) => (
+    <div
+      key={a.id}
+      style={{
+        marginTop: "15px",
+        padding: "15px",
+        background: "#f7f7f7",
+        borderRadius: "12px",
+        textAlign: "left",
+      }}
+    >
+      <p>⭐ {a.nota}/5</p>
+
+      {a.comentario && (
+        <p>💬 "{a.comentario}"</p>
+      )}
+    </div>
+  ))}
+
+    <a
+      href={`https://wa.me/55${profissionalSelecionado.whatsapp}`}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      📱 Chamar no WhatsApp
+    </a>
+<button onClick={() => setProfissionalSelecionado(null)}>
+  Fechar
+</button>
+    
+  </section>
+)}
         <section className="categories" id="categorias">
           <div className="section-title">
             <span>EXPLORE</span>
