@@ -3,6 +3,7 @@ import "./App.css";
 import { supabase } from "./lib/supabaseClient";
 function App() {
   const [usuario, setUsuario] = useState(null);
+  console.log("USUARIO:", usuario);
 const [mostrarLogin, setMostrarLogin] = useState(false);
 const [mostrarCadastro, setMostrarCadastro] = useState(false);
 useEffect(() => {
@@ -12,6 +13,16 @@ useEffect(() => {
   }
 
   verificarUsuario();
+
+  const { data: listener } = supabase.auth.onAuthStateChange(
+    (_event, session) => {
+      setUsuario(session?.user ?? null);
+    }
+  );
+
+  return () => {
+    listener.subscription.unsubscribe();
+  };
 }, []);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
 const [profissionais, setProfissionais] = useState([]);
@@ -66,22 +77,41 @@ const [resultadosBusca, setResultadosBusca] = useState(null);
         </nav>
 
         <div className="header-buttons">
-         <button
-  className="login"
-  onClick={() => {
-    
-    setMostrarLogin(true);
-  }}
->
-  Entrar
-</button>
-          <button
-  className="register"
-  onClick={() => setMostrarLogin(true)}
->
-  Criar conta
-</button>
-        </div>
+  {usuario ? (
+    <>
+      <span>Olá! 👋</span>
+
+      <button
+        className="login"
+        onClick={async () => {
+          await supabase.auth.signOut();
+          setUsuario(null);
+        }}
+      >
+        Sair
+      </button>
+    </>
+  ) : (
+    <>
+      <button
+        className="login"
+        onClick={() => setMostrarLogin(true)}
+      >
+        Entrar
+      </button>
+
+      <button
+        className="register"
+        onClick={() => {
+          setMostrarLogin(false);
+          setMostrarCadastro(true);
+        }}
+      >
+        Criar conta
+      </button>
+    </>
+  )}
+</div>
       </header>
 
       <main>
