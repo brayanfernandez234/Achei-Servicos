@@ -68,13 +68,18 @@ const [resultadosBusca, setResultadosBusca] = useState(null);
          <button
   className="login"
   onClick={() => {
-    alert("ENTRAR FOI CLICADO");
+    
     setMostrarLogin(true);
   }}
 >
   Entrar
 </button>
-          <button className="register">Criar conta</button>
+          <button
+  className="register"
+  onClick={() => setMostrarLogin(true)}
+>
+  Criar conta
+</button>
         </div>
       </header>
 
