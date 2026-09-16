@@ -4,6 +4,7 @@ import { supabase } from "./lib/supabaseClient";
 function App() {
   const [usuario, setUsuario] = useState(null);
 const [mostrarLogin, setMostrarLogin] = useState(false);
+const [mostrarCadastro, setMostrarCadastro] = useState(false);
 useEffect(() => {
   async function verificarUsuario() {
     const { data } = await supabase.auth.getSession();
@@ -203,12 +204,30 @@ const [resultadosBusca, setResultadosBusca] = useState(null);
       </button>
     </form>
 
-    <button
-      onClick={async () => {
-        const email = prompt("Digite seu e-mail:");
-        const senha = prompt("Crie uma senha:");
+   <button
+  onClick={() => {
+    setMostrarLogin(false);
+    setMostrarCadastro(true);
+  }}
+>
+  Criar minha conta
+</button>
+    <button onClick={() => setMostrarLogin(false)}>
+      Fechar
+    </button>
+  </section>
+)}
+{mostrarCadastro && (
+  <section className="professional-details">
+    <h2>Criar minha conta</h2>
 
-        if (!email || !senha) return;
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(e.currentTarget);
+        const email = formData.get("email");
+        const senha = formData.get("senha");
 
         const { error } = await supabase.auth.signUp({
           email,
@@ -220,15 +239,31 @@ const [resultadosBusca, setResultadosBusca] = useState(null);
           return;
         }
 
-        alert(
-          "✅ Conta criada! Verifique seu e-mail para confirmar o cadastro."
-        );
+        alert("✅ Conta criada! Verifique seu e-mail.");
+        setMostrarCadastro(false);
       }}
     >
-      Criar minha conta
-    </button>
+      <input
+        type="email"
+        name="email"
+        placeholder="Seu e-mail"
+        required
+      />
 
-    <button onClick={() => setMostrarLogin(false)}>
+      <input
+        type="password"
+        name="senha"
+        placeholder="Crie uma senha"
+        minLength="6"
+        required
+      />
+
+      <button type="submit">
+        Criar conta
+      </button>
+    </form>
+
+    <button onClick={() => setMostrarCadastro(false)}>
       Fechar
     </button>
   </section>
