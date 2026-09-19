@@ -6,6 +6,14 @@ function App() {
   console.log("USUARIO:", usuario);
 const [mostrarLogin, setMostrarLogin] = useState(false);
 const [mostrarCadastro, setMostrarCadastro] = useState(false);
+const [mostrarPerfil, setMostrarPerfil] = useState(false);
+const [mostrarMeusServicos, setMostrarMeusServicos] = useState(false);
+const [mostrarSolicitacoes, setMostrarSolicitacoes] = useState(false);
+const [meusServicos, setMeusServicos] = useState([]);
+const [solicitacoes, setSolicitacoes] = useState([]);
+const [minhasSolicitacoes, setMinhasSolicitacoes] = useState([]);
+const [mostrarMinhasSolicitacoes, setMostrarMinhasSolicitacoes] = useState(false);
+const [servicoEditando, setServicoEditando] = useState(null);
 useEffect(() => {
   async function verificarUsuario() {
     const { data } = await supabase.auth.getSession();
@@ -63,6 +71,68 @@ const [resultadosBusca, setResultadosBusca] = useState(null);
 
     carregarProfissionais();
   }, []);
+  useEffect(() => {
+  async function carregarMeusServicos() {
+    if (!usuario) return;
+
+    const { data, error } = await supabase
+      .from("profissionais")
+      .select("*")
+      .eq("usuario_id", usuario.id);
+
+    if (!error) {
+      setMeusServicos(data || []);
+    }
+  }
+
+  carregarMeusServicos();
+}, [usuario, mostrarMeusServicos]);
+useEffect(() => {
+  async function carregarSolicitacoes() {
+    if (!usuario) return;
+
+    const { data: meusDados } = await supabase
+      .from("profissionais")
+      .select("id")
+      .eq("usuario_id", usuario.id);
+
+    if (!meusDados || meusDados.length === 0) {
+      setSolicitacoes([]);
+      return;
+    }
+
+    const idsProfissionais = meusDados.map((item) => item.id);
+
+    const { data, error } = await supabase
+      .from("solicitacoes")
+      .select("*")
+      .in("profissional_id", idsProfissionais)
+      .order("created_at", { ascending: false });
+
+    if (!error) {
+      setSolicitacoes(data || []);
+    }
+  }
+
+  carregarSolicitacoes();
+}, [usuario]);
+useEffect(() => {
+  async function carregarMinhasSolicitacoes() {
+    if (!usuario) return;
+
+    const { data, error } = await supabase
+      .from("solicitacoes")
+      .select("*")
+      .eq("cliente_id", usuario.id)
+      .order("created_at", { ascending: false });
+
+    if (!error) {
+      setMinhasSolicitacoes(data || []);
+    }
+  }
+
+  carregarMinhasSolicitacoes();
+}, [usuario]);
   return (
     <div className="app">
       <header className="header">
@@ -79,7 +149,12 @@ const [resultadosBusca, setResultadosBusca] = useState(null);
         <div className="header-buttons">
   {usuario ? (
     <>
-      <span>Olá! 👋</span>
+      <button
+  className="profile-button"
+  onClick={() => setMostrarPerfil(true)}
+>
+  Olá, {usuario?.user_metadata?.nome || "usuário"}! 👋
+</button>
 
       <button
         className="login"
@@ -188,6 +263,267 @@ const [resultadosBusca, setResultadosBusca] = useState(null);
             </div>
           </div>
         </section>
+        {mostrarMeusServicos && (
+  <section className="professional-details">
+    <h2>🛠️ Meus serviços</h2>
+
+   {meusServicos.length === 0 ? (
+  <p>Você ainda não cadastrou nenhum serviço.</p>
+) : (
+  meusServicos.map((servico) => (
+    <div key={servico.id}>
+      <h3>{servico.servico}</h3>
+      <p><strong>Cidade:</strong> {servico.cidade}</p>
+      <p><strong>Preço:</strong> R$ {servico.preco}</p>
+      <p>{servico.descricao}</p>
+      <button
+  onClick={async () => {
+    const confirmar = window.confirm("Deseja excluir este serviço?");
+    if (!confirmar) return;
+
+    const { error } = await supabase
+      .from("profissionais")
+      .delete()
+      .eq("id", servico.id)
+      .eq("usuario_id", usuario.id);
+
+    if (error) {
+      alert("❌ Erro ao excluir: " + error.message);
+      return;
+    }
+
+    setMeusServicos(
+      meusServicos.filter((item) => item.id !== servico.id)
+    );
+
+    alert("✅ Serviço excluído!");
+  }}
+>
+  🗑️ Excluir
+</button>
+
+<button
+  onClick={() => setServicoEditando(servico)}
+>
+  ✏️ Editar
+</button>
+{servicoEditando?.id === servico.id && (
+  <form
+    onSubmit={async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(e.currentTarget);
+
+      const { error } = await supabase
+        .from("profissionais")
+        .update({
+          nome: formData.get("nome"),
+          whatsapp: formData.get("whatsapp"),
+          servico: formData.get("servico"),
+          cidade: formData.get("cidade"),
+          preco: formData.get("preco"),
+          descricao: formData.get("descricao"),
+        })
+        .eq("id", servico.id)
+        .eq("usuario_id", usuario.id);
+
+      if (error) {
+        alert("❌ Erro ao editar: " + error.message);
+        return;
+      }
+
+      alert("✅ Serviço atualizado!");
+
+      setServicoEditando(null);
+
+      setMeusServicos(
+        meusServicos.map((item) =>
+          item.id === servico.id
+            ? {
+                ...item,
+                nome: formData.get("nome"),
+                whatsapp: formData.get("whatsapp"),
+                servico: formData.get("servico"),
+                cidade: formData.get("cidade"),
+                preco: formData.get("preco"),
+                descricao: formData.get("descricao"),
+              }
+            : item
+        )
+      );
+    }}
+  >
+    <input
+      type="text"
+      name="nome"
+      defaultValue={servico.nome}
+      placeholder="Seu nome"
+      required
+    />
+
+    <input
+      type="text"
+      name="whatsapp"
+      defaultValue={servico.whatsapp}
+      placeholder="WhatsApp"
+      required
+    />
+
+    <input
+      type="text"
+      name="servico"
+      defaultValue={servico.servico}
+      placeholder="Serviço"
+      required
+    />
+
+    <input
+      type="text"
+      name="cidade"
+      defaultValue={servico.cidade}
+      placeholder="Cidade"
+      required
+    />
+
+    <input
+      type="number"
+      name="preco"
+      defaultValue={servico.preco}
+      placeholder="Preço"
+      required
+    />
+
+    <textarea
+      name="descricao"
+      defaultValue={servico.descricao}
+      placeholder="Descrição"
+      required
+    />
+
+    <button type="submit">
+      💾 Salvar alterações
+    </button>
+
+    <button
+      type="button"
+      onClick={() => setServicoEditando(null)}
+    >
+      Cancelar
+    </button>
+  </form>
+)}
+    </div>
+  ))
+)}
+
+    <button onClick={() => setMostrarMeusServicos(false)}>
+      Voltar ao perfil
+    </button>
+  </section>
+)}
+        {mostrarPerfil && (
+  <section className="professional-details">
+    <h2>👤 Meu perfil</h2>
+  <button onClick={() => setMostrarSolicitacoes(!mostrarSolicitacoes)}>
+  📩 Solicitações recebidas
+</button>
+
+{mostrarSolicitacoes && (
+  <div>
+    <h3>Solicitações recebidas</h3>
+
+    {solicitacoes.length === 0 ? (
+      <p>Você ainda não recebeu nenhuma solicitação.</p>
+    ) : (
+      solicitacoes.map((solicitacao) => (
+        <div key={solicitacao.id}>
+          <p>
+            <strong>Mensagem:</strong> {solicitacao.mensagem}
+          </p>
+          <p>
+            <strong>Status:</strong> {solicitacao.status}
+          </p>
+          <button
+          disabled={solicitacao.status !== "pendente"}
+      
+  onClick={async () => {
+    const { error } = await supabase
+      .from("solicitacoes")
+      .update({ status: "aceita" })
+      .eq("id", solicitacao.id);
+
+    if (error) {
+      alert("❌ Erro ao aceitar: " + error.message);
+      return;
+    }
+
+    setSolicitacoes(
+      solicitacoes.map((item) =>
+        item.id === solicitacao.id
+          ? { ...item, status: "aceita" }
+          : item
+      )
+    );
+
+    alert("✅ Solicitação aceita!");
+  }}
+>
+  ✅ Aceitar
+</button>
+
+<button
+disabled={solicitacao.status !== "pendente"}
+  onClick={async () => {
+    const { error } = await supabase
+      .from("solicitacoes")
+      .update({ status: "recusada" })
+      .eq("id", solicitacao.id);
+
+    if (error) {
+      alert("❌ Erro ao recusar: " + error.message);
+      return;
+    }
+
+    setSolicitacoes(
+      solicitacoes.map((item) =>
+        item.id === solicitacao.id
+          ? { ...item, status: "recusada" }
+          : item
+      )
+    );
+
+    alert("❌ Solicitação recusada.");
+  }}
+>
+  ❌ Recusar
+</button>
+          <hr />
+        </div>
+      ))
+    )}
+  </div>
+)}
+   <button onClick={() => setMostrarMeusServicos(true)}>
+  🛠️ Meus serviços
+</button>
+
+    <p>
+      <strong>Nome:</strong>{" "}
+      {usuario?.user_metadata?.nome || "Não informado"}
+    </p>
+
+    <p>
+      <strong>E-mail:</strong> {usuario?.email}
+    </p>
+<button onClick={() => setMostrarMinhasSolicitacoes(!mostrarMinhasSolicitacoes)}>
+  📋 Minhas solicitações
+</button>
+
+    <button onClick={() => setMostrarPerfil(false)}>
+      Fechar perfil
+    </button>
+  </section>
+)}
 {mostrarLogin && (
   <section className="professional-details">
     <h2>Entrar no Achei Serviço</h2>
@@ -257,11 +593,17 @@ const [resultadosBusca, setResultadosBusca] = useState(null);
 
         const formData = new FormData(e.currentTarget);
         const email = formData.get("email");
+        const nome = formData.get("nome");
         const senha = formData.get("senha");
 
         const { error } = await supabase.auth.signUp({
           email,
           password: senha,
+          options: {
+  data: {
+    nome: nome,
+  },
+},
         });
 
         if (error) {
@@ -272,7 +614,12 @@ const [resultadosBusca, setResultadosBusca] = useState(null);
         alert("✅ Conta criada! Verifique seu e-mail.");
         setMostrarCadastro(false);
       }}
-    >
+    ><input
+  type="text"
+  name="nome"
+  placeholder="Seu nome"
+  required
+/>
       <input
         type="email"
         name="email"
@@ -325,6 +672,7 @@ const [resultadosBusca, setResultadosBusca] = useState(null);
     const { error } = await supabase
       .from("profissionais")
       .insert({
+        usuario_id: usuario.id,
         nome: formData.get("nome"),
         whatsapp: formData.get("whatsapp"),
         servico: formData.get("servico"),
@@ -507,6 +855,39 @@ const [resultadosBusca, setResultadosBusca] = useState(null);
     >
       📱 Chamar no WhatsApp
     </a>
+    <button
+  onClick={async () => {
+    if (!usuario) {
+      alert("Faça login para solicitar um orçamento.");
+      setMostrarLogin(true);
+      return;
+    }
+
+    const mensagem = window.prompt(
+      "Escreva sua mensagem para o profissional:"
+    );
+
+    if (!mensagem) return;
+
+    const { error } = await supabase
+      .from("solicitacoes")
+      .insert({
+        profissional_id: profissionalSelecionado.id,
+        cliente_id: usuario.id,
+        cliente_nome: usuario?.user_metadata?.nome || "Cliente",
+        mensagem: mensagem,
+      });
+
+    if (error) {
+      alert("❌ Erro ao enviar solicitação: " + error.message);
+      return;
+    }
+
+    alert("✅ Solicitação enviada ao profissional!");
+  }}
+>
+  📩 Solicitar orçamento
+</button>
 <button onClick={() => setProfissionalSelecionado(null)}>
   Fechar
 </button>
