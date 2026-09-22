@@ -871,7 +871,7 @@ disabled={solicitacao.status !== "pendente"}
       .from("avaliacoes")
        .insert({
   profissional_id: profissionalSelecionado.id,
-  usuario_id: usuario.id,
+  usuario_id: (await supabase.auth.getUser()).data.user.id,
   nota: Number(notaSelecionada),
   comentario: document.querySelector(
     'textarea[name="comentario"]'
