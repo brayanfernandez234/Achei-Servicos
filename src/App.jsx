@@ -54,6 +54,7 @@ useEffect(() => {
 const [notaSelecionada, setNotaSelecionada] = useState("5");
 const [profissionalSelecionado, setProfissionalSelecionado] = useState(null);
 const [busca, setBusca] = useState("");
+const [localizacaoBusca, setLocalizacaoBusca] = useState("");
 const [resultadosBusca, setResultadosBusca] = useState(null);
   useEffect(() => {
     async function carregarProfissionais() {
@@ -122,7 +123,7 @@ useEffect(() => {
 
     const { data, error } = await supabase
       .from("solicitacoes")
-      .select("*")
+      .select("*, profissionais(whatsapp, nome, servico, cidade)")
       .eq("cliente_id", usuario.id)
       .order("created_at", { ascending: false });
 
@@ -219,22 +220,30 @@ useEffect(() => {
 
               <div className="location-field">
                 <span>📍</span>
-                <input
-                  type="text"
-                  placeholder="Cidade ou região"
-                />
+               <input
+  type="text"
+  placeholder="Cidade ou região"
+  value={localizacaoBusca}
+  onChange={(e) => setLocalizacaoBusca(e.target.value)}
+/>
               </div>
 
              <button
   className="search-button"
   onClick={() => {
-    const resultados = profissionais.filter((profissional) =>
-      profissional.servico
-        .toLowerCase()
-        .includes(busca.toLowerCase())
-    );
+   const resultados = profissionais.filter((profissional) => {
+  const combinaServico = profissional.servico
+    .toLowerCase()
+    .includes(busca.toLowerCase());
 
+  const combinaCidade = profissional.cidade
+    .toLowerCase()
+    .includes(localizacaoBusca.toLowerCase());
+
+  return combinaServico && combinaCidade;
+});
     setResultadosBusca(resultados);
+    
    
   }}
 >
@@ -509,7 +518,7 @@ disabled={solicitacao.status !== "pendente"}
 
     <p>
       <strong>Nome:</strong>{" "}
-      {usuario?.user_metadata?.nome || "Não informado"}
+     {usuario?.user_metadata?.nome || usuario?.email?.split("@")[0] || "Não informado"}
     </p>
 
     <p>
@@ -518,6 +527,75 @@ disabled={solicitacao.status !== "pendente"}
 <button onClick={() => setMostrarMinhasSolicitacoes(!mostrarMinhasSolicitacoes)}>
   📋 Minhas solicitações
 </button>
+{mostrarMinhasSolicitacoes && (
+  <div>
+    <h3>📋 Minhas solicitações</h3>
+
+    {minhasSolicitacoes.length === 0 ? (
+      <p>Você ainda não fez nenhuma solicitação.</p>
+    ) : (
+      minhasSolicitacoes.map((solicitacao) => (
+        <div key={solicitacao.id}>
+          <p>
+  <strong>🛠️ Serviço:</strong>{" "}
+  {solicitacao.profissionais?.servico || "Não informado"}
+</p>
+
+<p>
+  <strong>📍 Cidade:</strong>{" "}
+  {solicitacao.profissionais?.cidade || "Não informada"}
+</p>
+          <p>
+            <strong>💬 Mensagem:</strong> {solicitacao.mensagem}
+          </p>
+
+          <p>
+            <strong>Status:</strong>{" "}
+            {solicitacao.status === "pendente"
+              ? "🟡 Pendente"
+              : solicitacao.status === "aceita"
+              ? "🟢 Aceita"
+              : "🔴 Recusada"}
+          </p>
+
+         {solicitacao.status === "aceita" && (
+  <p>
+    ✅ O profissional aceitou sua solicitação.
+    <br />
+    <button
+  onClick={() => {
+    const whatsapp = solicitacao.profissionais?.whatsapp;
+
+    if (!whatsapp) {
+      alert("WhatsApp do profissional não encontrado.");
+      return;
+    }
+
+    let numero = whatsapp.replace(/\D/g, "");
+
+    if (!numero.startsWith("55")) {
+      numero = "55" + numero;
+    }
+
+  window.open(
+  `https://api.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(
+    "Olá! Entrei em contato pelo Achei Serviço sobre a solicitação de serviço que fiz. Podemos conversar?"
+  )}`,
+  "_blank"
+);
+  }}
+>
+      💬 Contactar por WhatsApp
+    </button>
+  </p>
+)}
+
+          <hr />
+        </div>
+      ))
+    )}
+  </div>
+)}
 
     <button onClick={() => setMostrarPerfil(false)}>
       Fechar perfil
@@ -784,10 +862,16 @@ disabled={solicitacao.status !== "pendente"}
 
 <button
   onClick={async () => {
+    if (!usuario) {
+  alert("Faça login para avaliar o profissional.");
+  setMostrarLogin(true);
+  return;
+}
     const { error } = await supabase
       .from("avaliacoes")
        .insert({
   profissional_id: profissionalSelecionado.id,
+  usuario_id: usuario.id,
   nota: Number(notaSelecionada),
   comentario: document.querySelector(
     'textarea[name="comentario"]'
