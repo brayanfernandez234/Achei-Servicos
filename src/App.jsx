@@ -3,7 +3,7 @@ import "./App.css";
 import { supabase } from "./lib/supabaseClient";
 function App() {
   const [usuario, setUsuario] = useState(null);
-  console.log("USUARIO:", usuario);
+
 const [mostrarLogin, setMostrarLogin] = useState(false);
 const [mostrarCadastro, setMostrarCadastro] = useState(false);
 const [mostrarPerfil, setMostrarPerfil] = useState(false);
@@ -140,13 +140,20 @@ useEffect(() => {
         <div className="logo">
           <span>🔎</span> Achei Serviço
         </div>
+<details className="mobile-menu">
+  <summary>☰ Menu</summary>
+  <div className="mobile-menu-links">
+    <a href="#inicio">Início</a>
+    <a href="#categorias">Categorias</a>
+    <a href="#como-funciona">Como funciona</a>
+  </div>
+</details>
 
-        <nav>
-          <a href="#inicio">Início</a>
-          <a href="#categorias">Categorias</a>
-          <a href="#como-funciona">Como funciona</a>
-        </nav>
-
+<nav>
+  <a href="#inicio">Início</a>
+  <a href="#categorias">Categorias</a>
+  <a href="#como-funciona">Como funciona</a>
+</nav>
         <div className="header-buttons">
   {usuario ? (
     <>
@@ -243,8 +250,8 @@ useEffect(() => {
   return combinaServico && combinaCidade;
 });
     setResultadosBusca(resultados);
-    
-   
+
+
   }}
 >
   Encontrar serviço
@@ -454,7 +461,7 @@ useEffect(() => {
           </p>
           <button
           disabled={solicitacao.status !== "pendente"}
-      
+
   onClick={async () => {
     const { error } = await supabase
       .from("solicitacoes")
@@ -831,14 +838,14 @@ disabled={solicitacao.status !== "pendente"}
         <h3>{profissional.servico}</h3>
         <p><strong>{profissional.nome}</strong></p>
         <p>📍 {profissional.cidade}</p>
-       
+
         <p>💰 A partir de R$ {profissional.preco}</p>
         <p>{profissional.descricao}</p>
         <p>📱 {profissional.whatsapp}</p>
       </div>
     ))}
   </div>
-</section> 
+</section>
 {profissionalSelecionado && (
   <section className="professional-details">
     <h2>{profissionalSelecionado.nome}</h2>
@@ -975,7 +982,7 @@ disabled={solicitacao.status !== "pendente"}
 <button onClick={() => setProfissionalSelecionado(null)}>
   Fechar
 </button>
-    
+
   </section>
 )}
         <section className="categories" id="categorias">
