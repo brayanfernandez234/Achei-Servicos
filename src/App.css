@@ -242,9 +242,17 @@ nav a:hover {
 .category-card {
   padding: 25px;
   border: 1px solid #e7ebf0;
-  border-radius: 15px;
-  transition: 0.2s;
+  border-radius: 18px;
+  transition: 0.25s ease;
   background: white;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+}
+
+.category-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.10);
+  border-color: #635bff;
 }
 
 .category-card:hover {
@@ -507,7 +515,9 @@ footer small {
   .category-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-
+.category-card {
+  padding: 20px;
+}
   .steps {
     grid-template-columns: 1fr;
   }

@@ -243,13 +243,24 @@ useEffect(() => {
     .toLowerCase()
     .includes(busca.toLowerCase());
 
-  const combinaCidade = profissional.cidade
+  const combinaCidade = (profissional.cidade || "")
     .toLowerCase()
     .includes(localizacaoBusca.toLowerCase());
 
   return combinaServico && combinaCidade;
 });
-    setResultadosBusca(resultados);
+    if (resultados.length === 1) {
+  setResultadosBusca(resultados);
+  setProfissionalSelecionado(resultados[0]);
+
+  setTimeout(() => {
+    document
+      .querySelector(".professional-details")
+      ?.scrollIntoView({ behavior: "smooth" });
+  }, 100);
+} else {
+  setResultadosBusca(resultados);
+}
 
 
   }}
@@ -827,6 +838,21 @@ disabled={solicitacao.status !== "pendente"}
   </div>
 
   <div className="category-grid">
+    {resultadosBusca !== null && resultadosBusca.length === 0 && (
+  <div className="no-results">
+    <h3>🔎 Nenhum profissional encontrado</h3>
+    <p>Não encontramos profissionais para essa busca.</p>
+    <button
+  onClick={() => {
+    setBusca("");
+    setLocalizacaoBusca("");
+    setResultadosBusca(null);
+  }}
+>
+  🔄 Limpar busca
+</button>
+  </div>
+)}
   {(resultadosBusca !== null ? resultadosBusca : profissionais).map((profissional) => (
       <div
   className="category-card"
