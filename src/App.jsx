@@ -1021,53 +1021,240 @@ disabled={solicitacao.status !== "pendente"}
           </div>
 
           <div className="category-grid">
-            <div className="category-card">
+            <div
+  className="category-card"
+  onClick={() => {
+    const resultados = profissionais.filter((profissional) =>
+      ["eletricista", "encanador", "manutenção", "manutencao"]
+        .some((termo) =>
+          profissional.servico.toLowerCase().includes(termo)
+        )
+    );
+
+    setResultadosBusca(resultados);
+  }}
+>
               <div className="category-icon">🔧</div>
               <h3>Manutenção</h3>
               <p>Eletricista, encanador e mais</p>
             </div>
 
-            <div className="category-card">
+            <div
+  className="category-card"
+  onClick={() => {
+    const resultados = profissionais.filter((profissional) =>
+      [
+        "cejas",
+        "sobrancelha",
+        "beleza",
+        "cabelo",
+        "unha",
+        "estética",
+        "estetica",
+        "lash",
+        "cílios",
+        "cilios",
+        "maquiagem",
+        "manicure",
+        "pedicure",
+      ].some((termo) =>
+        (profissional.servico || "")
+          .toLowerCase()
+          .includes(termo)
+      )
+    );
+
+    setResultadosBusca(resultados);
+  }}
+>
               <div className="category-icon">💇</div>
               <h3>Beleza</h3>
               <p>Cabelo, unhas, estética e mais</p>
             </div>
 
-            <div className="category-card">
-              <div className="category-icon">🏠</div>
-              <h3>Casa</h3>
-              <p>Limpeza, organização e reformas</p>
-            </div>
+           <div
+  className="category-card"
+  onClick={() => {
+    const resultados = profissionais.filter((profissional) =>
+      [
+        "limpeza",
+        "faxina",
+        "diarista",
+        "organização",
+        "organizacao",
+        "reforma",
+        "pintura",
+        "jardinagem",
+        "doméstica",
+        "domestica",
+      ].some((termo) =>
+        (profissional.servico || "")
+          .toLowerCase()
+          .includes(termo)
+      )
+    );
 
-            <div className="category-card">
-              <div className="category-icon">🚗</div>
-              <h3>Automotivo</h3>
-              <p>Mecânicos, lavagem e serviços</p>
-            </div>
+    setResultadosBusca(resultados);
+  }}
+>
+  <div className="category-icon">🏠</div>
+  <h3>Casa</h3>
+  <p>Limpeza, organização e reformas</p>
+</div>
 
-            <div className="category-card">
-              <div className="category-icon">💻</div>
-              <h3>Tecnologia</h3>
-              <p>Informática, design e programação</p>
-            </div>
+           <div
+  className="category-card"
+  onClick={() => {
+    const resultados = profissionais.filter((profissional) =>
+      [
+        "mecânico",
+        "mecanico",
+        "mecânica",
+        "mecanica",
+        "automotivo",
+        "automóvel",
+        "automovel",
+        "carro",
+        "veículo",
+        "veiculo",
+        "motorista",
+        "funilaria",
+        "lavagem",
+        "borracharia",
+      ].some((termo) =>
+        (profissional.servico || "")
+          .toLowerCase()
+          .includes(termo)
+      )
+    );
 
-            <div className="category-card">
-              <div className="category-icon">📚</div>
-              <h3>Aulas</h3>
-              <p>Professores e aulas particulares</p>
-            </div>
+    setResultadosBusca(resultados);
+  }}
+>
+  <div className="category-icon">🚗</div>
+  <h3>Automotivo</h3>
+  <p>Mecânicos, lavagem e serviços para veículos</p>
+</div>
 
-            <div className="category-card">
-              <div className="category-icon">🐶</div>
-              <h3>Pet</h3>
-              <p>Banho, passeio e cuidados</p>
-            </div>
+           <div
+  className="category-card"
+  onClick={() => {
+    const resultados = profissionais.filter((profissional) =>
+      [
+        "informática",
+        "informatica",
+        "computador",
+        "computadores",
+        "tecnologia",
+        "design",
+        "designer",
+        "programação",
+        "programacao",
+        "programador",
+        "programadora",
+        "desenvolvedor",
+        "desenvolvedora",
+        "software",
+        "suporte técnico",
+        "suporte tecnico",
+      ].some((termo) =>
+        (profissional.servico || "")
+          .toLowerCase()
+          .includes(termo)
+      )
+    );
 
-            <div className="category-card">
-              <div className="category-icon">➕</div>
-              <h3>Ver tudo</h3>
-              <p>Explore todas as categorias</p>
-            </div>
+    setResultadosBusca(resultados);
+  }}
+>
+  <div className="category-icon">💻</div>
+  <h3>Tecnologia</h3>
+  <p>Informática, design e programação</p>
+</div>
+
+           <div
+  className="category-card"
+  onClick={() => {
+    const resultados = profissionais.filter((profissional) =>
+      [
+        "aula",
+        "professor",
+        "professora",
+        "reforço",
+        "reforco",
+        "particular",
+        "idioma",
+        "inglês",
+        "ingles",
+        "espanhol",
+        "matemática",
+        "matematica",
+        "música",
+        "musica",
+        "ensino",
+      ].some((termo) =>
+        (profissional.servico || "")
+          .toLowerCase()
+          .includes(termo)
+      )
+    );
+
+    setResultadosBusca(resultados);
+  }}
+>
+  <div className="category-icon">📚</div>
+  <h3>Aulas</h3>
+  <p>Professores e aulas particulares</p>
+</div>
+
+           <div
+  className="category-card"
+  onClick={() => {
+    const resultados = profissionais.filter((profissional) =>
+      [
+        "pet",
+        "animal",
+        "banho",
+        "tosa",
+        "passeio",
+        "veterinário",
+        "veterinario",
+        "veterinária",
+        "veterinaria",
+        "cachorro",
+        "cão",
+        "cao",
+        "gato",
+        "adestramento",
+        "cuidador",
+      ].some((termo) =>
+        (profissional.servico || "")
+          .toLowerCase()
+          .includes(termo)
+      )
+    );
+
+    setResultadosBusca(resultados);
+  }}
+>
+  <div className="category-icon">🐶</div>
+  <h3>Pet</h3>
+  <p>Banho, passeio e cuidados</p>
+</div>
+
+            <div
+  className="category-card"
+  onClick={() => {
+    setBusca("");
+    setLocalizacaoBusca("");
+    setResultadosBusca(null);
+    setProfissionalSelecionado(null);
+  }}
+>
+  <div className="category-icon">➕</div>
+  <h3>Ver tudo</h3>
+  <p>Explore todas as categorias</p>
+</div>
           </div>
         </section>
 
